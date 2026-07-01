@@ -162,13 +162,14 @@
   .dest .note { font-family: "Space Mono", monospace; font-size: 12px; color: var(--accent); letter-spacing: 0.04em; }
 
   /* clues — photo cards, one unlocks each month */
-  .hgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); gap: 18px; }
+  .hgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 18px; }
   .hint { position: relative; border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
-    min-height: clamp(300px, 40vh, 400px); display: flex; flex-direction: column; justify-content: flex-end; padding: 26px;
+    aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: flex-end; padding: 22px;
     transition: transform .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s, border-color .45s; }
   .hint .photofill { position: absolute; inset: 0; background-image: var(--photo); background-size: cover; background-position: center;
     transition: transform .6s cubic-bezier(.2,.7,.2,1); will-change: transform; }
   .hint .photofill.ph-stripe { background-image: repeating-linear-gradient(45deg, rgba(155,107,208,0.24) 0 14px, rgba(225,78,107,0.15) 14px 28px); }
+  video.photofill { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
   .hint .grad { position: absolute; inset: 0; transition: opacity .5s ease; background:
     linear-gradient(to top, rgba(14,8,30,0.95) 4%, rgba(16,9,34,0.6) 34%, rgba(40,20,70,0.16) 66%, rgba(255,209,107,0.06) 100%); }
   .hint::after { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
@@ -353,12 +354,13 @@
             <span class="no">CLUE 01 · JUNE</span>
           </div>
         </article>
-        <article class="hint locked reveal" aria-disabled="true">
-          <div class="photofill ph-stripe"></div>
+        <article class="hint reveal" role="button" tabindex="0" aria-label="Clue 02 — July">
+          <video class="photofill" autoplay muted loop playsinline preload="metadata" poster="assets/clue-02-poster.jpg">
+            <source src="assets/clue-02.mp4" type="video/mp4">
+          </video>
           <div class="grad"></div>
-          <span class="lock">Unlocks · Jul</span>
           <div class="body">
-            <span class="no">CLUE 02</span>
+            <span class="no">CLUE 02 · JULY</span>
           </div>
         </article>
         <article class="hint locked reveal" aria-disabled="true">
