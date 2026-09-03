@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meeting Point — Globe</title>
+<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;background:transparent}
+  body{display:flex;align-items:center;justify-content:center;font-family:'Familjen Grotesk',system-ui,sans-serif}
+  .panel{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;box-sizing:border-box}
+  .eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.3em;color:#B79EC4;text-transform:uppercase}
+  .foot{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;color:#8B7A9C}
+  .stage{position:relative;flex:1;min-height:0;aspect-ratio:1/1;max-width:100%}
+  canvas{position:absolute;inset:0;width:100%;height:100%}
+</style>
+</head>
+<body>
+  <div class="panel">
+    <div class="eyebrow">Meeting Point</div>
+    <div class="stage"><canvas id="globe"></canvas></div>
+    <div class="foot">// three become one</div>
+  </div>
+
+<script>
+const stage = document.querySelector('.stage');
+const CFG = {
+  size: Math.max(280, Math.min(stage.clientWidth, stage.clientHeight)),
+  travel: 6.5,
+  hold: 2.6,
+  fade: 0.45,
+  AMS: [4.90, 52.37],
+  BON: [-68.26, 12.18],
+  LIM: [-77.03, -12.05],
+  PERU_ID: "604",
+  dotStep: 3.2,   // degrees between sample points (smaller = denser dots)
+  dotR: 1.1       // dot radius (px) — scales with zoom
+};
+
+const cv = document.getElementById('globe');
+const ctx = cv.getContext('2d');
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+cv.width = CFG.size * DPR; cv.height = CFG.size * DPR;
+ctx.scale(DPR, DPR);
+
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cx = CFG.size / 2, cy = CFG.size / 2;
+const baseScale = CFG.size / 2 - 6;
+
+const projection = d3.geoOrthographic().translate([cx, cy]).clipAngle(90);
+const path = d3.geoPath(projection, ctx);
+const graticule = d3.geoGraticule().step([15, 15])();
+
+const rot0 = [-CFG.AMS[0], -30];
+const rot1 = [-CFG.LIM[0], -CFG.LIM[1] - 4];
+const rotI = d3.interpolate(rot0, rot1);
+const easeIO = d3.easeCubicInOut;
+
+let landDots = [];   // array of [lon, lat] over land
+let peruDots = [];   // subset for Peru highlight
+let ready = false;
+
+d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json')
+  .then(topo => {
+    const feats = topojson.feature(topo, topo.objects.countries).features;
+    const land = topojson.feature(topo, topo.objects.countries);
+    const peru = feats.find(f => String(f.id) === CFG.PERU_ID);
+    // Sample a global grid; test each point for land membership
+    for (let lat = -85; lat <= 85; lat += CFG.dotStep) {
+      // vary lon step by cos(lat) so dot density is roughly uniform on the sphere
+      const lonStep = CFG.dotStep / Math.max(0.15, Math.cos(lat * Math.PI / 180));
+      for (let lon = -180; lon <= 180; lon += lonStep) {
+        const pt = [lon, lat];
+        if (d3.geoContains(land, pt)) {
+          landDots.push(pt);
+          if (peru && d3.geoContains(peru, pt)) peruDots.push(pt);
+        }
+      }
+    }
+    ready = true;
+    requestAnimationFrame(loop);
+  })
+  .catch(err => { console.error('globe data failed', err); });
+
+function arc(from, to, frac) {
+  const interp = d3.geoInterpolate(from, to);
+  const n = 48, coords = [];
+  for (let i = 0; i <= n; i++) coords.push(interp((i / n) * frac));
+  return { type: 'LineString', coordinates: coords };
+}
+
+function visible(pt, rot) {
+  return d3.geoDistance(pt, [-rot[0], -rot[1]]) < Math.PI / 2 - 0.02;
+}
+
+function drawLabel(pt, text, color) {
+  const p = projection(pt);
+  if (!p) return;
+  ctx.font = "8px 'Space Mono', monospace";
+  ctx.fillStyle = color;
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, p[0] + 7, p[1] - 7);
+}
+
+const cycle = CFG.travel + CFG.hold;
+let t0 = null;
+
+function frame(elapsed) {
+  let t = elapsed % cycle;
+  const p = Math.min(t / CFG.travel, 1);
+  const e = easeIO(p);
+
+  let alpha = 1;
+  if (t < CFG.fade) alpha = t / CFG.fade;
+  else if (t > cycle - CFG.fade) alpha = (cycle - t) / CFG.fade;
+
+  const rot = reduce ? rot1 : rotI(e);
+  const zoomP = easeIO(Math.min(Math.max((p - 0.4) / 0.6, 0), 1));
+  const scale = baseScale * (1 + (reduce ? 0.8 : 0.82 * zoomP));
+  projection.rotate(rot).scale(scale);
+
+  ctx.clearRect(0, 0, CFG.size, CFG.size);
+  ctx.globalAlpha = alpha;
+
+  // faint sphere backdrop (very subtle)
+  ctx.beginPath(); path({ type: 'Sphere' });
+  const g = ctx.createRadialGradient(cx - scale*0.3, cy - scale*0.4, scale*0.15, cx, cy, scale);
+  g.addColorStop(0, 'rgba(60,44,110,.25)');
+  g.addColorStop(1, 'rgba(18,14,44,.6)');
+  ctx.fillStyle = g; ctx.fill();
+
+  // sphere outline
+  ctx.beginPath(); path({ type: 'Sphere' });
+  ctx.strokeStyle = 'rgba(183,158,196,.4)'; ctx.lineWidth = 0.9; ctx.stroke();
+
+  // graticule (wireframe grid)
+  ctx.beginPath(); path(graticule);
+  ctx.strokeStyle = 'rgba(183,158,196,.22)'; ctx.lineWidth = 0.6; ctx.stroke();
+
+  // land as dots — only front-facing (within visible hemisphere)
+  const rotRad = [-rot[0], -rot[1]];
+  const center = [rotRad[0] * Math.PI / 180, rotRad[1] * Math.PI / 180];
+  const dotSize = CFG.dotR * (scale / baseScale);
+
+  ctx.fillStyle = 'rgba(230,220,240,.78)';
+  for (let i = 0; i < landDots.length; i++) {
+    const pt = landDots[i];
+    if (d3.geoDistance(pt, rotRad) > Math.PI / 2 - 0.02) continue;
+    const q = projection(pt);
+    if (!q) continue;
+    ctx.beginPath(); ctx.arc(q[0], q[1], dotSize, 0, 7); ctx.fill();
+  }
+
+  // Peru dots highlighted amber
+  ctx.fillStyle = '#FFD16B';
+  for (let i = 0; i < peruDots.length; i++) {
+    const pt = peruDots[i];
+    if (d3.geoDistance(pt, rotRad) > Math.PI / 2 - 0.02) continue;
+    const q = projection(pt);
+    if (!q) continue;
+    ctx.beginPath(); ctx.arc(q[0], q[1], dotSize * 1.15, 0, 7); ctx.fill();
+  }
+
+  // flight arcs
+  const fracAMS = reduce ? 1 : e;
+  const fracBON = reduce ? 1 : easeIO(Math.min(Math.max((p - 0.42) / 0.58, 0), 1));
+  ctx.strokeStyle = '#FFD16B'; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+  ctx.beginPath(); path(arc(CFG.AMS, CFG.LIM, fracAMS)); ctx.stroke();
+  ctx.beginPath(); path(arc(CFG.BON, CFG.LIM, fracBON)); ctx.stroke();
+
+  // origin dots + labels
+  ctx.fillStyle = '#E14E6B';
+  [CFG.AMS, CFG.BON].forEach(src => {
+    if (!visible(src, rot)) return;
+    const q = projection(src);
+    ctx.beginPath(); ctx.arc(q[0], q[1], 2.6, 0, 7); ctx.fill();
+  });
+  if (visible(CFG.AMS, rot)) drawLabel(CFG.AMS, 'AMS', '#B79EC4');
+  if (visible(CFG.BON, rot)) drawLabel(CFG.BON, 'BON', '#B79EC4');
+
+  // Lima pin + pulsing ring
+  if (visible(CFG.LIM, rot)) {
+    const l = projection(CFG.LIM);
+    const pulse = (elapsed % 2.6) / 2.6;
+    const r = 8 + pulse * 20;
+    ctx.beginPath(); ctx.arc(l[0], l[1], r, 0, 7);
+    ctx.strokeStyle = `rgba(255,209,107,${(1 - pulse) * 0.8})`; ctx.lineWidth = 1.4; ctx.stroke();
+    ctx.beginPath(); ctx.arc(l[0], l[1], 5, 0, 7);
+    ctx.fillStyle = '#FFD16B'; ctx.shadowColor = 'rgba(255,209,107,.9)'; ctx.shadowBlur = 12; ctx.fill();
+    ctx.shadowBlur = 0;
+    drawLabel(CFG.LIM, 'LIM', '#FFD16B');
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+function loop(ts) {
+  if (t0 === null) t0 = ts;
+  const elapsed = (ts - t0) / 1000;
+  frame(reduce ? cycle - CFG.hold : elapsed);
+  if (!reduce) requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
