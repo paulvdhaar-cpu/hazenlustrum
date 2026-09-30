@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Packing · Hazen Gone Loco</title>
+<link rel="icon" type="image/png" href="assets/hare-yellow.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:      #F6ECF4;
+    --ink-soft: #B79EC4;
+    --ink-muted:#8B7A9C;
+    --body:     #C6AFD3;
+    --accent:   #FFD16B;
+    --accent-2: #F0B929;
+    --violet:   #9B6BD0;
+    --bg:       #141038;
+    --line:     rgba(246,236,244,0.14);
+    --line-2:   rgba(246,236,244,0.2);
+    --dashed:   rgba(246,236,244,0.16);
+    --font: "Hanken Grotesk", sans-serif;
+    --mono: "Space Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding-top: env(safe-area-inset-top);
+  }
+  .gradient {
+    position: fixed; inset: 0; z-index: -2;
+    background:
+      radial-gradient(120% 55% at 78% 2%, rgba(214,74,40,.5), transparent 54%),
+      radial-gradient(95% 60% at 10% 22%, rgba(225,78,107,.42), transparent 56%),
+      radial-gradient(110% 80% at 50% 112%, rgba(72,48,152,.7), transparent 62%),
+      linear-gradient(176deg,#2a1546 0%,#4a2150 22%,#6c2c4f 40%,#3c2668 62%,#262a6e 100%);
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    opacity: 0.7; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 2 -0.5'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    background-size: 300px 300px;
+  }
+  .grain-coarse {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    opacity: 0.28; mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><filter id='c'><feTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.2 -0.2'/></filter><rect width='100%' height='100%' filter='url(%23c)'/></svg>");
+    background-size: 420px 420px;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px clamp(20px, 5.5vw, 90px);
+    position: sticky; top: 0; z-index: 20;
+    background: linear-gradient(180deg, rgba(20,12,40,0.72) 0%, rgba(20,12,40,0) 100%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .back {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-soft); text-decoration: none;
+    transition: color .25s;
+  }
+  .back:hover { color: var(--accent); }
+  .back .chev { font-size: 18px; font-weight: 400; line-height: 1; }
+  .eyebrow-center {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--accent);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .spacer { width: 60px; }
+
+  main {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 6px 20px 80px;
+  }
+  .pass {
+    border: 1px solid var(--line-2);
+    border-radius: 20px;
+    background: linear-gradient(155deg, rgba(108,50,90,0.62), rgba(60,42,110,0.6));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 60px rgba(10,6,26,0.5);
+  }
+  .pass .wm {
+    position: absolute; top: -14px; right: 8px;
+    font-family: var(--font); font-weight: 700; font-size: 76px; line-height: 1;
+    color: rgba(255,209,107,0.09); pointer-events: none;
+  }
+  .pass .head { padding: 18px 18px 14px; position: relative; z-index: 1; }
+  .pass .eb {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .pass h1 {
+    font-family: var(--font); font-weight: 700; font-size: 24px;
+    color: var(--ink); margin-top: 6px; letter-spacing: -0.01em;
+  }
+  .meter {
+    margin-top: 12px; height: 8px; border-radius: 999px;
+    background: rgba(246,236,244,0.12); overflow: hidden;
+  }
+  .meter .fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .35s cubic-bezier(.2,.7,.2,1);
+    border-radius: 999px;
+  }
+
+  .body {
+    border-top: 1.5px dashed var(--dashed);
+    padding: 14px 18px 16px;
+    display: flex; flex-direction: column; gap: 14px;
+    position: relative; z-index: 1;
+  }
+  .group .glabel {
+    font-family: var(--mono); font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: 9px;
+  }
+  .item {
+    display: flex; gap: 10px; align-items: center;
+    padding: 6px 0;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .item .box {
+    width: 17px; height: 17px; border-radius: 5px;
+    border: 1.6px solid rgba(246,236,244,0.35);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background .2s, border-color .2s;
+  }
+  .item .lbl { font-size: 13px; color: var(--ink); transition: color .2s; }
+  .item.checked .box {
+    background: var(--accent); border-color: var(--accent);
+  }
+  .item.checked .box::after {
+    content: "✓";
+    font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--bg);
+    line-height: 1;
+  }
+  .item.checked .lbl {
+    color: var(--ink-soft); text-decoration: line-through;
+  }
+  .note {
+    font-family: var(--mono); font-size: 9px; color: var(--violet);
+    margin-top: 8px; letter-spacing: 0.04em;
+  }
+
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .55s ease, transform .55s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  /* nav menu */
+  .nav-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    border: 1.4px solid rgba(255,209,107,0.55);
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(20,12,40,0.35);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: border-color .25s, background .25s, transform .25s;
+    padding: 0;
+  }
+  .nav-btn:hover { border-color: var(--accent); background: rgba(20,12,40,0.55); }
+  .nav-btn .bars { display: flex; flex-direction: column; gap: 4px; }
+  .nav-btn .bars span {
+    display: block; width: 16px; height: 2px; background: var(--accent); border-radius: 1px;
+    transition: transform .25s, opacity .2s;
+  }
+  .nav-btn[aria-expanded="true"] .bars span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-btn[aria-expanded="true"] .bars span:nth-child(2) { opacity: 0; }
+  .nav-btn[aria-expanded="true"] .bars span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  .nav-menu {
+    position: fixed;
+    top: 66px;
+    right: clamp(20px, 5.5vw, 90px);
+    min-width: 240px;
+    padding: 10px;
+    border-radius: 14px;
+    border: 1px solid rgba(246,236,244,0.14);
+    background: linear-gradient(155deg, rgba(60,38,104,0.92), rgba(18,14,44,0.94));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 30px 60px rgba(6,4,18,0.55);
+    z-index: 30;
+    opacity: 0; transform: translateY(-6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity .22s ease, transform .22s cubic-bezier(.2,.7,.2,1);
+  }
+  .nav-menu.open { opacity: 1; transform: none; pointer-events: auto; }
+  .nav-menu a {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 14px; border-radius: 10px;
+    color: var(--ink); text-decoration: none;
+    font-family: "Hanken Grotesk", sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -0.005em;
+    transition: background .18s, color .18s;
+  }
+  .nav-menu a:hover { background: rgba(255,209,107,0.09); color: var(--accent); }
+  .nav-menu a .mono {
+    font-family: "Space Mono", monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .nav-menu a:hover .mono { color: var(--accent); }
+  .nav-menu a.current { color: var(--accent); background: rgba(255,209,107,0.06); }
+  .nav-menu a.current .mono { color: var(--accent); }
+
+  .nav-backdrop {
+    position: fixed; inset: 0; z-index: 25;
+    background: rgba(6,4,18,0.4);
+    opacity: 0; pointer-events: none;
+    transition: opacity .22s ease;
+  }
+  .nav-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-menu, .nav-backdrop, .nav-btn .bars span { transition: none; }
+  }
+
+</style>
+</head>
+<body>
+  <nav class="nav-menu" id="navMenu" role="menu">
+      <a href="index.html"><span>Home</span><span class="mono">HZL</span></a>
+      <a href="program.html"><span>The Program</span><span class="mono">10 DAYS</span></a>
+      <a href="packing.html" class="current"><span>Packing</span><span class="mono">DUFFEL</span></a>
+      </nav>
+      <div class="nav-backdrop" id="navBackdrop"></div>
+  <div class="gradient"></div>
+  <div class="grain"></div>
+  <div class="grain-coarse"></div>
+
+  <header class="topbar">
+    <span class="eyebrow-center"><span class="dot">◆</span> Packing</span>
+    <button class="nav-btn" id="navBtn" aria-label="Menu" aria-expanded="false" aria-controls="navMenu">
+        <span class="bars"><span></span><span></span><span></span></span>
+      </button>
+  </header>
+
+  <main>
+    <article class="pass reveal">
+      <div class="wm">✓</div>
+      <div class="head">
+        <div class="eb">THE DUFFEL · 10 DAYS · PERU</div>
+        <h1><span id="packedCount">0</span> of <span id="totalCount">0</span> packed</h1>
+        <div class="meter"><div class="fill" id="meterFill" style="width:0%"></div></div>
+      </div>
+      <div class="body" id="body">
+        <!-- populated via JS -->
+      </div>
+    </article>
+  </main>
+
+<script>
+const GROUPS = [
+  {
+    label: 'ESSENTIALS',
+    items: [
+      { id: 'passport',   label: 'Passport' },
+      { id: 'insurance',  label: 'Travel insurance' },
+      { id: 'cards',      label: 'Cards (souvenirs — all other expenses covered)' },
+      { id: 'bottle',     label: 'Reusable water bottle' },
+      { id: 'toiletries', label: 'Toiletry bag' }
+    ],
+    note: 'No power adapter needed ✕'
+  },
+  {
+    label: 'LIMA · COAST',
+    items: [
+      { id: 'easyOutfits', label: 'Easy-going outfits' },
+      { id: 'fancy',       label: 'One fancy dinner outfit' }
+    ]
+  },
+  {
+    label: 'SACRED VALLEY · COLD NIGHTS',
+    items: [
+      { id: 'windJacket',  label: 'Windproof hike jacket / vest' },
+      { id: 'warmLayer',   label: 'Warm layer for the cold' },
+      { id: 'hikeBoots',   label: 'Hiking pants + boots' },
+      { id: 'swim',        label: 'Swimming trousers' },
+      { id: 'spf50',       label: 'SPF 50' }
+    ]
+  },
+  {
+    label: 'AMAZON · HOT & BUGGY',
+    items: [
+      { id: 'deet',      label: 'DEET' },
+      { id: 'longShirt', label: 'Long light shirt with sleeves' }
+    ]
+  }
+];
+
+const STORAGE_KEY = 'hazen.packing.v1';
+let packed = new Set();
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) packed = new Set(JSON.parse(raw));
+} catch (e) { /* ignore */ }
+
+const allIds = GROUPS.flatMap(g => g.items.map(i => i.id));
+const total = allIds.length;
+
+const bodyEl = document.getElementById('body');
+GROUPS.forEach(g => {
+  const gEl = document.createElement('div');
+  gEl.className = 'group';
+  const itemsHtml = g.items.map(i => `
+    <div class="item ${packed.has(i.id) ? 'checked' : ''}" data-id="${i.id}" role="checkbox" tabindex="0" aria-checked="${packed.has(i.id)}">
+      <div class="box"></div>
+      <div class="lbl">${i.label}</div>
+    </div>
+  `).join('');
+  gEl.innerHTML = `<div class="glabel">${g.label}</div>${itemsHtml}${g.note ? `<div class="note">${g.note}</div>` : ''}`;
+  bodyEl.appendChild(gEl);
+});
+
+document.getElementById('totalCount').textContent = total;
+updateMeter();
+
+bodyEl.addEventListener('click', e => {
+  const item = e.target.closest('.item');
+  if (!item) return;
+  toggle(item);
+});
+bodyEl.addEventListener('keydown', e => {
+  if (e.key !== ' ' && e.key !== 'Enter') return;
+  const item = e.target.closest('.item');
+  if (!item) return;
+  e.preventDefault();
+  toggle(item);
+});
+
+function toggle(item) {
+  const id = item.dataset.id;
+  if (packed.has(id)) { packed.delete(id); item.classList.remove('checked'); item.setAttribute('aria-checked', 'false'); }
+  else { packed.add(id); item.classList.add('checked'); item.setAttribute('aria-checked', 'true'); }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...packed])); } catch (e) {}
+  updateMeter();
+}
+
+function updateMeter() {
+  const n = packed.size;
+  document.getElementById('packedCount').textContent = n;
+  document.getElementById('meterFill').style.width = ((n / total) * 100) + '%';
+}
+
+// Reveal on scroll
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.16 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+<script>/* nav-init */
+  (function(){
+    const btn = document.getElementById('navBtn');
+    const menu = document.getElementById('navMenu');
+    const backdrop = document.getElementById('navBackdrop');
+    if (!btn || !menu) return;
+    function setOpen(open) {
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      menu.classList.toggle('open', open);
+      backdrop.classList.toggle('open', open);
+    }
+    btn.addEventListener('click', e => { e.stopPropagation(); setOpen(btn.getAttribute('aria-expanded') !== 'true'); });
+    backdrop.addEventListener('click', () => setOpen(false));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+    menu.addEventListener('click', e => { if (e.target.closest('a')) setOpen(false); });
+  })();
+</script>
+</body>
+</html>

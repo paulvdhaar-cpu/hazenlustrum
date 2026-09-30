@@ -58,9 +58,14 @@
       linear-gradient(176deg, #2a1546 0%, #4a2150 20%, #6c2c4f 35%, #3c2668 56%, #262a6e 78%, #161940 100%);
   }
   .grain {
-    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.34; mix-blend-mode: soft-light;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 220px 220px;
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.7; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 2 -0.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 300px 300px;
+  }
+  .grain-coarse {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.28; mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.2 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
+    background-size: 420px 420px;
   }
   .halo { position: fixed; top: 0; left: 0; width: 540px; height: 540px; z-index: 2; pointer-events: none;
     border-radius: 50%; transform: translate(-50%,-50%); opacity: 0; transition: opacity .55s ease; will-change: left, top, opacity;
@@ -174,6 +179,78 @@
     transition: transform .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s, border-color .45s; }
   .mood-clip:hover { transform: translateY(-6px); box-shadow: 0 30px 60px rgba(20,8,40,0.46); border-color: var(--accent); }
   @media (prefers-reduced-motion: reduce) { .mood-clip { transition: none; } .mood-clip:hover { transform: none; } }
+
+  /* topbar layout */
+  .topbar { padding: 18px clamp(20px, 5.5vw, 90px); position: relative; z-index: 15; }
+
+  /* nav menu */
+  .nav-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    border: 1.4px solid rgba(255,209,107,0.55);
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(20,12,40,0.35);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: border-color .25s, background .25s, transform .25s;
+    padding: 0;
+  }
+  .nav-btn:hover { border-color: var(--accent); background: rgba(20,12,40,0.55); }
+  .nav-btn .bars { display: flex; flex-direction: column; gap: 4px; }
+  .nav-btn .bars span {
+    display: block; width: 16px; height: 2px; background: var(--accent); border-radius: 1px;
+    transition: transform .25s, opacity .2s;
+  }
+  .nav-btn[aria-expanded="true"] .bars span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-btn[aria-expanded="true"] .bars span:nth-child(2) { opacity: 0; }
+  .nav-btn[aria-expanded="true"] .bars span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  .nav-menu {
+    position: fixed;
+    top: 66px;
+    right: clamp(20px, 5.5vw, 90px);
+    min-width: 240px;
+    padding: 10px;
+    border-radius: 14px;
+    border: 1px solid rgba(246,236,244,0.14);
+    background: linear-gradient(155deg, rgba(60,38,104,0.92), rgba(18,14,44,0.94));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 30px 60px rgba(6,4,18,0.55);
+    z-index: 30;
+    opacity: 0; transform: translateY(-6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity .22s ease, transform .22s cubic-bezier(.2,.7,.2,1);
+  }
+  .nav-menu.open { opacity: 1; transform: none; pointer-events: auto; }
+  .nav-menu a {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 14px; border-radius: 10px;
+    color: var(--ink); text-decoration: none;
+    font-family: "Hanken Grotesk", sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -0.005em;
+    transition: background .18s, color .18s;
+  }
+  .nav-menu a:hover { background: rgba(255,209,107,0.09); color: var(--accent); }
+  .nav-menu a .mono {
+    font-family: "Space Mono", monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .nav-menu a:hover .mono { color: var(--accent); }
+  .nav-menu a.current { color: var(--accent); background: rgba(255,209,107,0.06); }
+  .nav-menu a.current .mono { color: var(--accent); }
+
+  .nav-backdrop {
+    position: fixed; inset: 0; z-index: 25;
+    background: rgba(6,4,18,0.4);
+    opacity: 0; pointer-events: none;
+    transition: opacity .22s ease;
+  }
+  .nav-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-menu, .nav-backdrop, .nav-btn .bars span { transition: none; }
+  }
+
   .endline { text-align: center; padding: 70px 24px 96px; border-top: 1px solid var(--line); margin: 0 clamp(26px,5.5vw,90px); }
   .endline .big { font-size: clamp(28px,4.8vw,58px); font-weight: 600; line-height: 1.1; letter-spacing: -0.02em; }
   .endline .small { font-family: "Space Mono", monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); margin-top: 20px; }
@@ -226,11 +303,25 @@
 </style>
 </head>
 <body>
+  <nav class="nav-menu" id="navMenu" role="menu">
+      <a href="index.html" class="current"><span>Home</span><span class="mono">HZL</span></a>
+      <a href="program.html"><span>The Program</span><span class="mono">10 DAYS</span></a>
+      <a href="packing.html"><span>Packing</span><span class="mono">DUFFEL</span></a>
+      </nav>
+      <div class="nav-backdrop" id="navBackdrop"></div>
   <div class="bg" id="bg"></div>
   <div class="grain"></div>
+  <div class="grain-coarse"></div>
   <div class="halo" id="halo"></div>
 
   <div class="stage">
+    <header class="topbar">
+      <div class="brand"><span class="mk"></span>Hazen Gone Loco</div>
+      <button class="nav-btn" id="navBtn" aria-label="Menu" aria-expanded="false" aria-controls="navMenu">
+        <span class="bars"><span></span><span></span><span></span></span>
+      </button>
+    </header>
+
     <section class="hero">
       <div class="hero-mid">
         <div class="hero-head">
@@ -272,9 +363,8 @@
           <div class="di"><div class="d">29 Oct</div><div class="t">Wheels up</div></div>
           <div class="di"><div class="d">7 Nov</div><div class="t">Home again</div></div>
           <div class="di"><div class="d">10 days</div><div class="t">Off the grid</div></div>
-          <div class="di"><div class="d"><span class="dots">······</span></div><div class="t">Where</div></div>
+          <div class="di"><div class="d ac">Peru</div><div class="t">Where</div></div>
         </div>
-        <div class="scrollcue"><span>Follow the clues</span><span class="arrow">↓</span></div>
       </div>
     </section>
 
@@ -315,9 +405,9 @@
         <span class="eyebrow">Get excited</span>
       </div>
       <div class="mood-grid reveal">
-        <video class="mood-clip" src="mood-01.mp4" poster="mood-01-poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
-        <video class="mood-clip" src="mood-02.mp4" poster="mood-02-poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
-        <video class="mood-clip" src="mood-03.mp4" poster="mood-03-poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
+        <video class="mood-clip" data-src="mood-01.mp4" poster="mood-01-poster.jpg" muted loop playsinline preload="none"></video>
+        <video class="mood-clip" data-src="mood-02.mp4" poster="mood-02-poster.jpg" muted loop playsinline preload="none"></video>
+        <video class="mood-clip" data-src="mood-03.mp4" poster="mood-03-poster.jpg" muted loop playsinline preload="none"></video>
       </div>
     </section>
 
@@ -601,5 +691,44 @@
       } catch (_) { /* private mode */ }
     })();
   </script>
+<script>/* nav-init */
+  (function(){
+    const btn = document.getElementById('navBtn');
+    const menu = document.getElementById('navMenu');
+    const backdrop = document.getElementById('navBackdrop');
+    if (!btn || !menu) return;
+    function setOpen(open) {
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      menu.classList.toggle('open', open);
+      backdrop.classList.toggle('open', open);
+    }
+    btn.addEventListener('click', e => { e.stopPropagation(); setOpen(btn.getAttribute('aria-expanded') !== 'true'); });
+    backdrop.addEventListener('click', () => setOpen(false));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+    menu.addEventListener('click', e => { if (e.target.closest('a')) setOpen(false); });
+  })();
+</script>
+<script>/* mood-lazy */
+  (function(){
+    const clips = document.querySelectorAll('.mood-clip');
+    if (!clips.length || !('IntersectionObserver' in window)) {
+      // Fallback: load & play everything
+      clips.forEach(v => { const s = v.dataset.src; if (s) { v.src = s; v.play().catch(()=>{}); } });
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        const v = e.target;
+        if (e.isIntersecting) {
+          if (!v.src && v.dataset.src) { v.src = v.dataset.src; }
+          v.play().catch(()=>{});
+        } else {
+          v.pause();
+        }
+      });
+    }, { rootMargin: '200px 0px', threshold: 0.15 });
+    clips.forEach(v => io.observe(v));
+  })();
+</script>
 </body>
 </html>
