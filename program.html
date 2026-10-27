@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The Program · Hazen Gone Loco</title>
+<title>Het Programma · Hazen Gone Loco</title>
 <link rel="icon" type="image/png" href="assets/hare-yellow.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Familjen+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink:      #F6ECF4;
@@ -22,7 +22,9 @@
     --line:     rgba(246,236,244,0.14);
     --line-2:   rgba(246,236,244,0.2);
     --dashed:   rgba(246,236,244,0.16);
-    --font: "Hanken Grotesk", sans-serif;
+    --card-bg:  rgba(28,18,46,0.5);
+    --font: "Hanken Grotesk", "Familjen Grotesk", sans-serif;
+    --font-flyer: "Familjen Grotesk", "Hanken Grotesk", sans-serif;
     --mono: "Space Mono", monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,7 +57,8 @@
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><filter id='c'><feTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.2 -0.2'/></filter><rect width='100%' height='100%' filter='url(%23c)'/></svg>");
     background-size: 420px 420px;
   }
-  /* topbar */
+
+  /* TOPBAR */
   .topbar {
     display: flex; justify-content: space-between; align-items: center;
     padding: 18px clamp(20px, 5.5vw, 90px);
@@ -64,33 +67,22 @@
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
-  .back {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--ink-soft); text-decoration: none;
-    transition: color .25s;
-  }
-  .back:hover { color: var(--accent); }
-  .back .chev { font-size: 18px; font-weight: 400; line-height: 1; }
   .eyebrow-center {
     font-family: var(--mono); font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
     color: var(--accent);
     display: flex; align-items: center; gap: 6px;
   }
   .eyebrow-center .dot { color: var(--accent); }
-  .count {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--ink-soft);
-  }
-  /* body */
+
+  /* MAIN */
   main {
     max-width: 560px;
     margin: 0 auto;
     padding: 24px 20px 80px;
   }
-  .days {
-    display: flex; flex-direction: column; gap: 12px;
-  }
+  .days { display: flex; flex-direction: column; gap: 12px; }
+
+  /* DAY — collapsed */
   .day {
     border: 1px solid var(--line);
     border-radius: 16px;
@@ -105,12 +97,10 @@
   .day:hover { border-color: rgba(255,209,107,0.35); }
   .day.open {
     border: 1px solid var(--line-2);
-    border-radius: 18px;
+    border-radius: 20px;
     background: linear-gradient(155deg, rgba(108,50,90,0.62), rgba(60,42,110,0.6));
     cursor: default;
   }
-
-  /* watermark day number */
   .day .wm {
     position: absolute; pointer-events: none;
     font-family: var(--font); font-weight: 700;
@@ -118,19 +108,14 @@
     top: -8px; right: 10px; font-size: 56px; line-height: 1;
     transition: font-size .3s, top .3s, color .3s;
   }
-  .day.open .wm {
-    font-size: 104px; top: -16px; right: 6px;
-    color: rgba(255,209,107,0.09);
-  }
+  .day.open .wm { font-size: 104px; top: -16px; right: 6px; color: rgba(255,209,107,0.09); }
 
-  /* collapsed layout */
   .day .row {
     padding: 15px 16px;
     display: flex; align-items: center; justify-content: space-between;
     position: relative; z-index: 1;
   }
   .day.open .row { display: none; }
-
   .day .rowTxt .eb {
     font-family: var(--mono); font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--accent);
@@ -141,57 +126,299 @@
   }
   .day .caret { font-size: 13px; color: var(--ink-muted); }
 
-  /* expanded */
-  .day .expanded { display: none; padding: 0; position: relative; z-index: 1; }
+  /* DAY — expanded (flyer) */
+  .day .expanded { display: none; }
   .day.open .expanded { display: block; }
 
-  .day .upper { padding: 18px 18px 14px; }
-  .day .expanded .eb {
-    font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+  .flyer {
+    position: relative; z-index: 1;
+    padding: 24px 22px 22px;
+    display: flex; flex-direction: column; gap: 18px;
+    font-family: var(--font-flyer);
+  }
+  .flyer .hero { padding-right: 60px; } /* leave room for watermark */
+  .flyer .eye {
+    font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
     color: var(--accent);
   }
-  .day .expanded .ti {
-    font-family: var(--font); font-weight: 700; font-size: 25px; line-height: 1.04;
-    letter-spacing: -0.02em; color: var(--ink); margin-top: 7px;
+  .flyer h1 {
+    font-size: clamp(34px, 8vw, 48px);
+    font-weight: 700; line-height: 0.98;
+    letter-spacing: -0.03em;
+    margin-top: 8px;
   }
-  .day .expanded p {
-    font-size: 14px; line-height: 1.58; color: var(--body); max-width: 42ch;
-    margin-top: 11px;
+  .flyer h1 .y, .flyer h2 .y, .flyer h3 .y { color: var(--accent); }
+  .flyer .lede {
+    font-size: 15px; line-height: 1.4;
+    margin-top: 10px;
+    color: var(--ink);
   }
-  .day .expanded p + p { margin-top: 9px; }
 
-  .weather {
-    margin-top: 14px;
-    display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  .lbl {
+    font-family: var(--mono);
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 10px;
   }
-  .weather .temp {
-    font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--accent);
-    margin-right: 2px;
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 18px;
+    display: flex; flex-direction: column; gap: 14px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
+
+  .r2 {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 14px; align-items: start;
+  }
+  .r2 .t {
+    font-family: var(--mono);
+    font-size: 20px; font-weight: 700; color: var(--accent);
+    font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1;
+    padding-top: 2px;
+  }
+  .r2 .t.s { font-size: 13px; line-height: 1.2; padding-top: 4px; }
+  .r2 .t small {
+    display: block; font-size: 10px; font-weight: 400;
+    color: var(--ink-soft); letter-spacing: .04em; margin-top: 4px; line-height: 1.2;
+  }
+  .who {
+    font-size: 15px; font-weight: 600; line-height: 1.25;
+  }
+  .fl {
+    font-family: var(--mono);
+    font-size: 11px; color: var(--ink-soft);
+    margin-top: 3px; letter-spacing: .02em; line-height: 1.4;
+  }
+  .tx {
+    font-size: 14px; line-height: 1.5;
+    color: var(--ink);
+  }
+  .tx + .tx { margin-top: 8px; }
+  .tx.muted { color: var(--ink-soft); }
+  .tx b, .warn b, .menu b { color: var(--accent); font-weight: 600; }
+
   .tag {
-    font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
-    padding: 4px 8px; border-radius: 999px;
-    background: rgba(246,236,244,0.06); border: 1px solid;
+    display: inline-block; align-self: flex-start;
+    font-family: var(--mono);
+    font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--bg); background: var(--accent);
+    padding: 4px 9px; border-radius: 5px;
   }
-  .tag.rose   { color: var(--rose);   border-color: rgba(225,78,107,0.35); }
-  .tag.amber  { color: var(--accent); border-color: rgba(255,209,107,0.35); }
-  .tag.violet { color: var(--violet); border-color: rgba(155,107,208,0.35); }
+  .tag.v { background: var(--violet); color: var(--bg); }
+  .tag.r { background: var(--rose); color: var(--ink); }
 
-  .strip {
-    border-top: 1.5px dashed var(--dashed);
-    display: grid; grid-template-columns: 1fr 1fr;
+  .warn {
+    display: flex; gap: 10px; align-items: flex-start;
+    border: 1px dashed rgba(255,209,107,.5);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 13px; line-height: 1.4;
   }
-  .strip .cell {
-    padding: 11px 16px;
+  .warn .k {
+    flex: none;
+    font-family: var(--mono);
+    font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+    background: var(--rose); color: var(--ink);
+    font-weight: 700;
+    padding: 4px 7px; border-radius: 4px;
+    margin-top: 1px;
+    white-space: nowrap;
   }
-  .strip .cell + .cell { border-left: 1px solid rgba(246,236,244,0.1); }
-  .strip .lbl {
-    font-family: var(--mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--ink-muted);
+  .warn .k.y { background: var(--accent); color: var(--bg); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex; align-items: baseline; gap: 5px;
+    font-size: 12px; font-weight: 500;
+    background: rgba(246,236,244,.08);
+    border: 1px solid rgba(246,236,244,.25);
+    border-radius: 999px; padding: 4px 11px;
+    line-height: 1.3;
   }
-  .strip .val {
-    font-size: 13px; color: var(--ink); margin-top: 3px;
+  .chip.y {
+    background: rgba(255,209,107,.14);
+    border-color: rgba(255,209,107,.6);
   }
+  .chip b {
+    font-family: var(--mono); color: var(--accent); font-size: 12px;
+  }
+
+  .menu { display: flex; flex-direction: column; gap: 6px; list-style: none; padding: 0; }
+  .menu li {
+    display: grid; grid-template-columns: 10px 1fr; gap: 10px;
+    font-size: 13px; line-height: 1.4;
+  }
+  .menu li::before {
+    content: "";
+    width: 5px; height: 5px; border-radius: 1px;
+    transform: rotate(45deg); background: var(--accent);
+    margin-top: 7px;
+  }
+
+  .eve {
+    background: rgba(28,18,46,.55);
+    border: 1px solid rgba(255,209,107,.4);
+    border-radius: 16px;
+    padding: 18px 18px;
+    display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: start;
+  }
+  .eve > .t {
+    font-family: var(--mono);
+    font-size: 20px; font-weight: 700; color: var(--accent); line-height: 1;
+    padding-top: 2px;
+  }
+  .eve > .t small {
+    display: block; font-size: 10px; font-weight: 400; color: var(--ink-soft);
+    letter-spacing: .04em; margin-top: 4px;
+  }
+  .eve .bd { display: flex; flex-direction: column; gap: 10px; }
+  .eve h2 { font-size: 22px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+
+  .two { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  @media (min-width: 480px) { .two { grid-template-columns: 1fr 1fr; } }
+
+  .sleep {
+    background: linear-gradient(155deg, rgba(108,50,90,0.6), rgba(60,42,110,0.6));
+    border: 1px solid rgba(255,209,107,0.3);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .sleep .k {
+    font-family: var(--mono);
+    font-size: 9px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .sleep h4 {
+    font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
+  }
+  .sleep p { font-size: 13px; color: var(--ink-soft); line-height: 1.4; }
+  .sleep .alt + .alt { border-top: 1px dashed rgba(246,236,244,0.12); padding-top: 8px; margin-top: 2px; }
+
+  /* phone-link style */
+  .phone {
+    font-family: var(--mono); font-size: 12px; color: var(--ink-soft);
+    letter-spacing: .02em;
+  }
+
+  /* 3-column grid for choice cards (Chill/Spa/Ruïnes) */
+  .three {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 420px) { .three { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
+  .card.stop { gap: 0; }
+  .card.stop h3 { font-size: 17px; font-weight: 700; line-height: 1.1; margin-top: 10px; }
+  .card.stop .tx { font-size: 13px; margin-top: 6px; }
+
+  /* stats grid — big numeric tiles (400m / 6× / 2,5km, or #26 / #4) */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .stats.s2 { grid-template-columns: 1fr 1fr; }
+  .stat {
+    border: 1px solid rgba(255,209,107,.45);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .stat b {
+    display: block; font-family: var(--mono);
+    font-size: 26px; color: var(--accent); line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stats.s2 .stat b { font-size: 32px; }
+  .stat span { font-size: 12px; line-height: 1.3; color: var(--ink); }
+
+  /* numbered walking tour / route */
+  .route { list-style: none; display: flex; flex-direction: column; padding: 0; margin: 0; }
+  .route li {
+    position: relative;
+    display: grid; grid-template-columns: 28px 1fr;
+    gap: 12px;
+    font-size: 14px; line-height: 1.3;
+    padding: 7px 0; align-items: center;
+  }
+  .route li:not(:last-child)::after {
+    content: ""; position: absolute;
+    left: 13px; top: 36px; bottom: -8px;
+    border-left: 2px dotted rgba(255,209,107,.6);
+  }
+  .route .n {
+    width: 26px; height: 26px; border-radius: 999px;
+    background: var(--violet); color: var(--bg);
+    font: 700 12px var(--mono);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .route small {
+    display: block; font-size: 12px; color: var(--ink-soft); margin-top: 2px;
+    font-family: var(--font);
+  }
+
+  /* pick layout — A or B binary choice */
+  .pick {
+    display: grid; grid-template-columns: 1fr; gap: 10px;
+    align-items: center;
+  }
+  @media (min-width: 420px) { .pick { grid-template-columns: 1fr auto 1fr; } }
+  .or {
+    font: 700 14px var(--mono);
+    color: var(--bg); background: var(--accent);
+    width: 40px; height: 40px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    text-transform: uppercase; margin: 0 auto;
+  }
+
+  /* sign — tilted name card (naambordje) */
+  .sign {
+    background: #F6ECF4; color: var(--bg);
+    border-radius: 8px;
+    padding: 14px 18px 16px;
+    transform: rotate(-2.5deg);
+    box-shadow: 0 16px 36px rgba(10,4,24,.4);
+    text-align: center;
+    align-self: center;
+  }
+  .sign small {
+    display: block; font: 700 10px var(--mono);
+    letter-spacing: .22em; text-transform: uppercase;
+    color: var(--violet); margin-bottom: 6px;
+  }
+  .sign b {
+    font: 700 24px/1.05 var(--mono);
+    letter-spacing: .02em;
+  }
+
+  /* banner — colored callout (Halloween) */
+  .banner {
+    background: var(--rose); color: var(--ink);
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 16px 36px rgba(10,4,24,.35);
+  }
+  .banner h3 {
+    font-size: 26px; font-weight: 700; line-height: 1;
+    letter-spacing: -0.02em; margin-bottom: 6px;
+  }
+  .banner p { font-size: 14px; line-height: 1.4; }
+
+  /* big closing text */
+  .big {
+    font-size: 22px; font-weight: 600; line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .big em { font-style: normal; color: var(--accent); }
+  .end { display: flex; flex-direction: column; gap: 16px; margin-top: 6px; }
 
   /* reveal on scroll */
   .reveal { opacity: 0; transform: translateY(14px); transition: opacity .55s ease, transform .55s cubic-bezier(.2,.7,.2,1); }
@@ -249,12 +476,12 @@
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     padding: 12px 14px; border-radius: 10px;
     color: var(--ink); text-decoration: none;
-    font-family: "Hanken Grotesk", sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -0.005em;
+    font-family: var(--font); font-size: 15px; font-weight: 600; letter-spacing: -0.005em;
     transition: background .18s, color .18s;
   }
   .nav-menu a:hover { background: rgba(255,209,107,0.09); color: var(--accent); }
   .nav-menu a .mono {
-    font-family: "Space Mono", monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--ink-muted);
   }
   .nav-menu a:hover .mono { color: var(--accent); }
@@ -268,203 +495,666 @@
     transition: opacity .22s ease;
   }
   .nav-backdrop.open { opacity: 1; pointer-events: auto; }
-
-  @media (prefers-reduced-motion: reduce) {
-    .nav-menu, .nav-backdrop, .nav-btn .bars span { transition: none; }
-  }
-
 </style>
 </head>
 <body>
-  <nav class="nav-menu" id="navMenu" role="menu">
-      <a href="index.html"><span>Home</span><span class="mono">HZL</span></a>
-      <a href="program.html" class="current"><span>The Program</span><span class="mono">10 DAYS</span></a>
-      <a href="packing.html"><span>Packing</span><span class="mono">DUFFEL</span></a>
-      </nav>
-      <div class="nav-backdrop" id="navBackdrop"></div>
   <div class="gradient"></div>
   <div class="grain"></div>
   <div class="grain-coarse"></div>
 
+  <nav class="nav-menu" id="navMenu" role="menu">
+    <a href="index.html"><span>Home</span><span class="mono">HZL</span></a>
+    <a href="program.html" class="current"><span>Het Programma</span><span class="mono">9 DAGEN</span></a>
+    <a href="packing.html"><span>Paklijst</span><span class="mono">DUFFEL</span></a>
+  </nav>
+  <div class="nav-backdrop" id="navBackdrop"></div>
+
   <header class="topbar">
-    <span class="eyebrow-center"><span class="dot">◆</span> The Program</span>
+    <span class="eyebrow-center"><span class="dot">◆</span> Het Programma</span>
     <button class="nav-btn" id="navBtn" aria-label="Menu" aria-expanded="false" aria-controls="navMenu">
-        <span class="bars"><span></span><span></span><span></span></span>
-      </button>
+      <span class="bars"><span></span><span></span><span></span></span>
+    </button>
   </header>
 
   <main>
-    <div class="days" id="days">
-      <!-- Days populated via JS from DAYS[] -->
+    <div class="days">
+
+      <!-- DAG 1 -->
+      <article class="day open reveal" data-idx="0">
+        <div class="wm">1</div>
+        <div class="row">
+          <div class="rowTxt">
+            <div class="eb">DAG 1 · DO 29 OKT · LIMA</div>
+            <div class="ti">Lima aangekomen</div>
+          </div>
+          <div class="caret">⌄</div>
+        </div>
+        <div class="expanded"><div class="flyer">
+          <div class="hero">
+            <div class="eye">◆ Dag 1 · Donderdag 29 oktober</div>
+            <h1>Aangekomen.<br><span class="y">Lima.</span></h1>
+            <p class="lede">Daar zijn we dan!</p>
+          </div>
+
+          <div class="card">
+            <span class="lbl">Wie komt wanneer</span>
+            <div class="r2"><div class="t">16.50</div><div><div class="who">David</div><div class="fl">Avianca AV 53 · vanuit Bogotá</div></div></div>
+            <div class="r2"><div class="t">18.10</div><div><div class="who">Paul, Dick en Paultje</div><div class="fl">KLM KL 743 · vanuit Amsterdam</div></div></div>
+          </div>
+
+          <div class="two" style="align-items:center;gap:16px">
+            <p class="tx">Hugo rijdt zelf naar het vliegveld voor David, daarna wachten ze samen op de rest. Er staat ook iemand van <b>J&amp;R Turismo</b> klaar met een bordje "Hugo Grondel".</p>
+            <div class="sign"><small>J&amp;R Turismo</small><b>WELKOM<br>HAZEN!</b></div>
+          </div>
+
+          <div class="card" style="border-color:rgba(225,78,107,.5)">
+            <div class="tag r">Als er niemand is</div>
+            <div class="r2" style="grid-template-columns:1fr auto;gap:12px">
+              <div class="who">Remco <span style="color:var(--ink-soft);font-weight:400">· J&amp;R Turismo</span></div>
+              <div class="t" style="font-size:14px;padding-top:3px">+51 981 649 649</div>
+            </div>
+            <div class="r2" style="grid-template-columns:1fr auto;gap:12px">
+              <div class="who">Maria Francia <span style="color:var(--ink-soft);font-weight:400">· Engels</span></div>
+              <div class="t" style="font-size:14px;padding-top:3px">+51 955 858 875</div>
+            </div>
+          </div>
+
+          <div class="r2"><div class="t">±1<small>uur rijden</small></div><div><div class="who">Naar Hugo's Mansion in Miraflores</div><div class="fl">Malecón Balta 830</div></div></div>
+
+          <div class="end">
+            <div class="big">Aankomen, uitpakken, iets eten, bed in.<br>Morgen begint het <em>echt</em>.</div>
+            <div class="sleep">
+              <div class="k">Slapen</div>
+              <h4>Hugo's Mansion</h4>
+              <p>Miraflores · Malecón Balta 830</p>
+            </div>
+          </div>
+        </div></div>
+      </article>
+
+      <!-- DAG 2 -->
+      <article class="day reveal" data-idx="1">
+        <div class="wm">2</div>
+        <div class="row">
+          <div class="rowTxt">
+            <div class="eb">DAG 2 · VR 30 OKT · LIMA</div>
+            <div class="ti">Lima te voet</div>
+          </div>
+          <div class="caret">⌄</div>
+        </div>
+        <div class="expanded"><div class="flyer">
+          <div class="hero">
+            <div class="eye">◆ Dag 2 · Vrijdag 30 oktober</div>
+            <h1>Lima<br><span class="y">te voet.</span></h1>
+          </div>
+
+          <div class="card">
+            <div class="r2"><div class="t">08.00</div><div><div class="who">Onze reisbegeleider komt langs</div><p class="tx">Tips, en vragen stellen over de komende negen dagen.</p></div></div>
+            <div class="r2"><div class="t">08.30</div><div><div class="who">45 min rijden naar het centrum</div><p class="tx">Daar start <b>Ursula</b> onze stadswandeling: ±3,5 uur door het koloniale deel van Lima.</p></div></div>
+          </div>
+
+          <div class="card">
+            <span class="lbl">Wat we zien</span>
+            <ol class="route">
+              <li><span class="n">1</span><span>Plaza San Martín en Jirón de la Unión</span></li>
+              <li><span class="n">2</span><span>Palacio Torre Tagle<small>Alleen in het weekend open — mazzel</small></span></li>
+              <li><span class="n">3</span><span>Kerken van La Merced en Santo Domingo</span></li>
+              <li><span class="n">4</span><span>Casa Osambela</span></li>
+              <li><span class="n">5</span><span>San Francisco-klooster</span></li>
+              <li><span class="n">6</span><span>Plaza de Armas<small>Kathedraal, aartsbisschoppelijk paleis, stadhuis en presidentieel paleis</small></span></li>
+            </ol>
+          </div>
+
+          <div class="warn">
+            <span class="k y">12.00</span>
+            <span>Op Plaza de Armas: <b>wisseling van de wacht</b>.</span>
+          </div>
+
+          <div>
+            <span class="lbl">Eén van deze twee mogen we binnenlopen · entree zit erbij</span>
+            <div class="pick">
+              <div class="card stop"><div class="tag">Optie A</div><h3>San Francisco-klooster</h3><p class="tx">Met catacomben.</p></div>
+              <div class="or">of</div>
+              <div class="card stop"><div class="tag v">Optie B</div><h3>Kathedraal van Lima</h3><p class="tx">Religieuze kunst.</p></div>
+            </div>
+          </div>
+
+          <div class="r2"><div class="t">13.30</div><div><div class="who">Opgehaald en naar Isolina in Barranco</div><p class="tx">Lunch.</p></div></div>
+
+          <div class="end">
+            <div class="big">Rest van de dag: <em>open</em>.<br>In de avond lekker <em>nassen</em>.</div>
+            <div class="sleep">
+              <div class="k">Slapen</div>
+              <h4>Hugo's Mansion</h4>
+              <p>Miraflores</p>
+            </div>
+          </div>
+        </div></div>
+      </article>
+
+      <!-- DAG 3 -->
+      <article class="day reveal" data-idx="2">
+        <div class="wm">3</div>
+        <div class="row">
+          <div class="rowTxt">
+            <div class="eb">DAG 3 · ZA 31 OKT · LIMA</div>
+            <div class="ti">Chillen en Pisco sours</div>
+          </div>
+          <div class="caret">⌄</div>
+        </div>
+        <div class="expanded"><div class="flyer">
+          <div class="hero">
+            <div class="eye">◆ Dag 3 · Zaterdag 31 oktober</div>
+            <h1>Chillen en<br><span class="y">Pisco sours.</span></h1>
+          </div>
+
+          <div class="card">
+            <div class="r2"><div class="t">06.05</div><div><div class="who">Bernard landt</div><div class="fl">Iberia IB 123 · uit Madrid</div><p class="tx">J&amp;R haalt 'm op (bordje met zijn naam) en brengt 'm in een uurtje naar Miraflores.</p></div></div>
+            <div class="r2" style="grid-template-columns:72px 1fr;gap:14px">
+              <div style="font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--rose);font-weight:700;padding-top:4px">Nood</div>
+              <div class="who">Remco <span class="mono" style="color:var(--accent);font-weight:400;font-size:14px">+51 981 649 649</span></div>
+            </div>
+          </div>
+
+          <p class="tx">Rustige ochtend. Bernard moet even bijkomen van z'n reis.</p>
+
+          <div class="card stop">
+            <div class="tag">Vanaf de middag</div>
+            <h3 style="font-size:22px;font-weight:700;line-height:1.15;margin-top:10px">Uitgebreide lunch op het <span class="y">dakterras</span> bij Hugo</h3>
+            <p class="tx" style="margin-top:10px">We leren samen <b>ceviche</b> maken, met <b>pisco sours</b> erbij. Verse vis, lime, pisco, uitzicht over Lima. Alle tijd.</p>
+          </div>
+
+          <div class="eve">
+            <div class="t s">'s avonds</div>
+            <div class="bd">
+              <div><div class="lbl" style="margin-bottom:6px">Diner</div><h2><span class="y">Mérito</span></h2></div>
+              <p class="tx">Vanavond gaan we exclusief eten bij Mérito van chef <b>Juan Luis Martínez</b>.</p>
+              <div class="stats s2">
+                <div class="stat"><b>#26</b><span>World's 50 Best Restaurants 2025</span></div>
+                <div class="stat"><b>#4</b><span>van Latijns-Amerika</span></div>
+              </div>
+              <p class="tx">Serieus lekker.</p>
+            </div>
+          </div>
+
+          <div class="banner">
+            <h3>En het is Halloween.</h3>
+            <p>Outfits hebben we geregeld.</p>
+          </div>
+
+          <div class="end">
+            <div class="sleep">
+              <div class="k">Slapen</div>
+              <h4>Hugo's Mansion</h4>
+              <p>Miraflores</p>
+            </div>
+          </div>
+        </div></div>
+      </article>
+
+      <!-- DAG 4 -->
+      <article class="day reveal" data-idx="3">
+        <div class="wm">4</div>
+        <div class="row">
+          <div class="rowTxt">
+            <div class="eb">DAG 4 · ZO 1 NOV · HEILIGE VALLEI</div>
+            <div class="ti">Van Lima de bergen in</div>
+          </div>
+          <div class="caret">⌄</div>
+        </div>
+        <div class="expanded"><div class="flyer">
+          <div class="hero">
+            <div class="eye">◆ Dag 4 · Zondag 1 november</div>
+            <h1>Van Lima<br><span class="y">de bergen in.</span></h1>
+            <p class="lede">Kust uit, bergen in.</p>
+          </div>
+
+          <div class="card">
+            <div class="r2"><div class="t">09.15</div><div class="who">J&amp;R haalt ons op bij Hugo.</div></div>
+            <div class="r2"><div class="t">11.35</div><div><div class="who">Vliegen naar Cusco</div><div class="fl">LATAM LA 2061 · light · code GUFQXS</div></div></div>
+            <div class="r2"><div class="t">13.00</div><div><div class="who">In Cusco. Chauffeur en gids staan klaar.</div><p class="tx">Direct door naar de Heilige Vallei.</p></div></div>
+          </div>
+
+          <div>
+            <span class="lbl">Twee stops onderweg</span>
+            <div class="two">
+              <div class="card stop"><div class="tag">Stop 1</div><h3>Chinchero</h3><p class="tx">Hoog gelegen bergdorp. Bekend om de traditionele weefkunst, een goede zondagmarkt ('s ochtends het drukst), restanten van een Inca-paleis en een koloniale kerk.</p></div>
+              <div class="card stop"><div class="tag">Stop 2</div><h3>Zoutpannen van Salineras</h3><p class="tx">Zoutwinning die hier al eeuwen op dezelfde manier gaat. Witte terrassen tegen de berg, best indrukwekkend.</p></div>
+            </div>
+          </div>
+
+          <div class="warn">
+            <span class="k">Let op</span>
+            <span>Bij Ollantaytambo kan het wat vastlopen door wegwerkzaamheden: reken op <b>60–90 min extra</b>. Daar is het programma al op afgestemd.</span>
+          </div>
+
+          <div class="r2"><div class="t">16.45</div><div><div class="who">Aankomst Las Qolqas Eco-resort</div><div class="fl">Camino a Willoq Km 2, Ollantaytambo<br>+51 947 299 499 · lasqolqas.com</div></div></div>
+
+          <div class="eve">
+            <div class="t">17.00<small>tot 19.30</small></div>
+            <div class="bd">
+              <div><div class="lbl" style="margin-bottom:6px">Vanavond</div><h2><span class="y">Pacha</span>manca-avond</h2></div>
+              <p class="tx">Een traditionele Pachamanca in de tuin van het resort, aan de rivier. Alles wordt bereid in een kuil in de grond met gloeiendhete stenen, een eeuwenoude techniek. In het Quechua is <b>Pacha</b> aarde en <b>Manka</b> pot. Oorspronkelijk een manier om Moeder Aarde te bedanken voor de oogst.</p>
+              <span class="lbl" style="margin-bottom:2px">Op het menu</span>
+              <ul class="menu">
+                <li><span>Welkomstdrankje: Pisco Punch</span></li>
+                <li><span>Salade uit de boomgaard</span></li>
+                <li><span>Aardappels, maïs, zoete aardappels, oca, tuinbonen (allemaal lokale soorten)</span></li>
+                <li><span>Huancaína-, rocoto- en uchucuta-sauzen</span></li>
+                <li><span>Kip, varkens- en lamsvlees</span></li>
+                <li><span>Seizoensfruit flambé en huisgemaakt ijs</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="end">
+            <div class="big">Muggenspul<br><em>bij de hand houden.</em></div>
+            <div class="sleep">
+              <div class="k">Slapen</div>
+              <h4>Las Qolqas Eco-resort</h4>
+              <div class="chips">
+                <span class="chip y"><b>3</b>glamping-tenten voor 2 pers.</span>
+                <span class="chip y"><b>2×</b>eenpersoonsbed per tent</span>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      </article>
+
+      <!-- DAG 5 -->
+      <article class="day reveal" data-idx="4">
+        <div class="wm">5</div>
+        <div class="row">
+          <div class="rowTxt">
+            <div class="eb">DAG 5 · MA 2 NOV · HEILIGE VALLEI</div>
+            <div class="ti">Via Ferrata & slapen in de bergen</div>
+          </div>
+          <div class="caret">⌄</div>
+        </div>
+        <div class="expanded"><div class="flyer">
+          <div class="hero">
+            <div class="eye">◆ Dag 5 · Maandag 2 november</div>
+            <h1>Via Ferrata &amp;<br><span class="y">slapen in de bergen.</span></h1>
+          </div>
+
+          <div>
+            <span class="lbl">Ochtend vrij · wat je wil</span>
+            <div class="three">
+              <div class="card stop"><div class="tag">Chill</div><h3>Chillen bij het resort</h3></div>
+              <div class="card stop"><div class="tag v">Spa</div><h3>Spa en wellness</h3><p class="tx">Sauna, openluchtjacuzzi, massages.</p></div>
+              <div class="card stop"><div class="tag">Ruïnes</div><h3>Ollantaytambo</h3><p class="tx">Met het archeologische park.</p></div>
+            </div>
+            <p class="tx muted" style="margin-top:12px">Het resort heeft een gratis enkele transfer naar Ollantaytambo (even vooraf regelen). Terug met de taxi, 5–7 min.</p>
+          </div>
+
+          <div class="warn">
+            <span class="k">Belangrijk</span>
+            <span><b>13.00 iedereen terug bij de lodge</b>, dan gaan we los. Van tevoren goed eten: tijdens de activiteit geen lunch, diner is pas later.</span>
+          </div>
+
+          <div class="r2">
+            <div class="t">13.00</div>
+            <div>
+              <div class="who">Natura Vive brengt ons naar het basiskamp</div>
+              <p class="tx">Tussen Urubamba en Ollantaytambo. Bagage die we niet nodig hebben blijft hier.</p>
+            </div>
+          </div>
+
+          <div class="eve">
+            <div class="t">13.30<small>tot 17.30</small></div>
+            <div class="bd">
+              <div><div class="lbl" style="margin-bottom:6px">Eerst veiligheidsinstructie en uitrusting</div><h2><span class="y">Via Ferrata</span> + ziplinen</h2></div>
+              <div class="stats">
+                <div class="stat"><b>400m</b><span>Via Ferrata omhoog</span></div>
+                <div class="stat"><b>6×</b><span>zipline, 150–700 m per stuk</span></div>
+                <div class="stat"><b>2,5km</b><span>zipline in totaal</span></div>
+              </div>
+              <p class="tx">Liever geen zipline? Kan ook via <b>rappel</b>. Zo'n drie uur in totaal, Engelstalige gidsen erbij.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="r2"><div class="t">17.30</div><div><div class="who">Transfer naar Star Lodge Adventure Suites</div><p class="tx">Uitleg over de capsules. Overige bagage gaat naar beveiligde opslag in Urubamba. Daarna klim je in 20–30 min via speciale trappen omhoog naar je capsule.</p></div></div>
+            <div class="r2"><div class="t">18.00<small>tot 20.00</small></div><div class="who">Jacuzzi en installeren</div></div>
+            <div class="r2"><div class="t">20.30<small>tot 21.30</small></div><div class="who">Diner in de glamping-eetruimte onderaan</div></div>
+          </div>
+
+          <div class="two">
+            <div class="card">
+              <div class="tag">Aan hebben / mee</div>
+              <ul class="menu">
+                <li><span>Comfy kleding, lange broek</span></li>
+                <li><span>Wandelschoenen of stevige sneakers</span></li>
+                <li><span>Licht jack</span></li>
+                <li><span>Kleine rugzak (mag met z'n tweeën delen)</span></li>
+                <li><span>Waterfles (bij te vullen bij basiskamp)</span></li>
+              </ul>
+            </div>
+            <div class="card">
+              <div class="tag r">Voor de nacht · apart houden!</div>
+              <ul class="menu">
+                <li><span>Lange broek, comfy kleding</span></li>
+                <li><span>Wandelschoenen</span></li>
+                <li><span>Warme laag (fleece)</span></li>
+                <li><span>Winddicht jack (optioneel)</span></li>
+                <li><span>Toiletspullen</span></li>
+                <li><span>Badkleding voor de hot tubs</span></li>
+                <li><span>Minimaal 1 liter water</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="warn">
+            <span class="k y">Let op</span>
+            <span>Douche is er niet. Bij het basiskamp wel gefilterd water om bij te vullen.</span>
+          </div>
+
+          <div class="end">
+            <div class="sleep">
+              <div class="k">Slapen</div>
+              <h4>Star Lodge Adventure Suites</h4>
+              <p>Hangende capsules tegen de bergwand, hoog boven de vallei.</p>
+              <div class="chips">
+                <span class="chip y"><b>1×</b>capsule 2 pers. · 2 eenpersoonsbedden</span>
+                <span class="chip y"><b>1×</b>capsule 4 pers. · 4 eenpersoonsbedden</span>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      </article>
+
+      <!-- DAG 6 -->
+      <article class="day reveal" data-idx="5">
+        <div class="wm">6</div>
+        <div class="row">
+          <div class="rowTxt">
+            <div class="eb">DAG 6 · DI 3 NOV · VALLEI → CUSCO</div>
+            <div class="ti">Via Pisac naar Cusco</div>
+          </div>
+          <div class="caret">⌄</div>
+        </div>
+        <div class="expanded"><div class="flyer">
+          <div class="hero">
+            <div class="eye">◆ Dag 6 · Dinsdag 3 november</div>
+            <h1>Via Pisac<br><span class="y">naar Cusco.</span></h1>
+          </div>
+
+          <div class="card">
+            <span class="lbl">Ochtend boven de vallei</span>
+            <div class="r2"><div class="t s">06.00<small>tot 08.15</small></div><div class="who">Nog een rondje jacuzzi als je wil</div></div>
+            <div class="r2"><div class="t s">08.15<small>tot 08.30</small></div><div class="who">Afdaling via de trappen</div></div>
+            <div class="r2"><div class="t s">08.30<small>tot 09.30</small></div><div class="who">Ontbijt onderaan</div></div>
+            <div class="r2"><div class="t">09.30</div><div><div class="who">Chauffeur haalt ons op bij Star Lodge</div><p class="tx">Opgeslagen bagage krijgen we meteen terug. Dan anderhalf uur rijden naar Pisac, langs de Urubamba-rivier door het oostelijke deel van de Heilige Vallei.</p></div></div>
+          </div>
+
+          <div class="card stop">
+            <div class="tag">Stop 1 · Pisac</div>
+            <h3 style="font-size:22px;margin-top:10px">Archeologisch park Pisac</h3>
+            <p class="tx" style="margin-top:10px">Hoog op de berg boven het dorp. Terrassen, militaire en civiele bouwwerken, heilige tempels. De wandeling duurt zo'n twee uur en eindigt op een andere plek dan waar we beginnen: de chauffeur wacht op de afgesproken plek.</p>
+            <p class="tx" style="margin-top:8px">Wie wil: pad naar de <b>Intihuatana-sector</b>, met restanten van de zonnetempel en zonnewijzer.</p>
+          </div>
+
+          <div class="warn">
+            <span class="k y">Ticket</span>
+            <span>Entree niet inbegrepen. Je hebt de <b>Boleto Turístico del Cusco (BTC)</b> nodig, ook voor Saqsayhuaman. Nog niet? Bij de ingang te krijgen.</span>
+          </div>
+
+          <div class="card">
+            <div>
+              <span class="lbl">Lunch in Pisac · zelf regelen</span>
+              <p class="tx">Lokale specialiteit: <b>empanadas uit grote ovens</b>. Tips:</p>
+            </div>
+            <div class="three">
+              <div><div class="who">Cuchara de Palo</div><p class="tx">Aan het centrale plein. Traditioneel en internationaal, ook vegetarisch.</p></div>
+              <div><div class="who">Antica Osteria Pisac</div><p class="tx">Italiaans. Avenida Federico Zamalloa, richting de ruïnes.</p></div>
+              <div><div class="who">Doña Clorinda</div><p class="tx">Lokaal. Bij de rivier, net buiten het dorp.</p></div>
+            </div>
+          </div>
+
+          <div>
+            <span class="lbl">Door naar Cusco · 50 min rijden</span>
+            <div class="two">
+              <div class="card stop"><div class="tag">Stop 2</div><h3>Uitzichtpunt Taray</h3><p class="tx">Onderweg zie je dorpjes en archeologische plekken.</p></div>
+              <div class="card stop"><div class="tag v">Stop 3 · 3.700m</div><h3>Saqsayhuaman</h3><p class="tx">Iconische stenen die zonder cement perfect in elkaar passen. Alleen met de BTC.</p></div>
+            </div>
+          </div>
+
+          <div class="r2"><div class="t s">14.00<small>tot 15.00</small></div><div><div class="who">Aankomst Cusco · hotel in San Blas</div><div class="fl">Antigua Casona San Blas<br>Calle Carmen Bajo 243 · +51 84 200 700<br>antiguacusco.com</div></div></div>
+
+          <div class="card">
+            <div>
+              <span class="lbl">Rest van de dag vrij</span>
+              <p class="tx">Cusco was ooit de hoofdstad van het Incarijk, dus er is genoeg:</p>
+            </div>
+            <div class="chips">
+              <span class="chip">Museo Inca</span>
+              <span class="chip">Museo de Arte Precolombino</span>
+              <span class="chip">San Blas verkennen</span>
+              <span class="chip">Lekker lokaal eten</span>
+              <span class="chip">Rondlopen, pleintjes zoeken</span>
+            </div>
+            <p class="tx muted">Meer tips krijgen we al in Lima.</p>
+          </div>
+
+          <div class="end">
+            <div class="sleep">
+              <div class="k">Slapen</div>
+              <h4>Antigua Casona San Blas</h4>
+              <div class="chips">
+                <span class="chip y"><b>6×</b>eenpersoonskamer</span>
+                <span class="chip y">iedereen z'n eigen kamer</span>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      </article>
+
+      <!-- DAG 7 -->
+      <article class="day reveal" data-idx="6">
+        <div class="wm">7</div>
+        <div class="row">
+          <div class="rowTxt">
+            <div class="eb">DAG 7 · WO 4 NOV · TAMBOPATA</div>
+            <div class="ti">Van Cusco het regenwoud in</div>
+          </div>
+          <div class="caret">⌄</div>
+        </div>
+        <div class="expanded"><div class="flyer">
+          <div class="hero">
+            <div class="eye">◆ Dag 7 · Woensdag 4 november</div>
+            <h1>Van Cusco<br><span class="y">het regenwoud in.</span></h1>
+            <p class="lede">Bergen uit, jungle in.</p>
+          </div>
+
+          <div class="card">
+            <div class="r2"><div class="t">08.00</div><div class="who">Chauffeur naar de luchthaven van Cusco</div></div>
+            <div class="r2"><div class="t">10.05</div><div><div class="who">Vlucht naar Puerto Maldonado</div><div class="fl">SKY Airline H8 5721 · light · code KTGCGV</div></div></div>
+            <div class="r2"><div class="t">11.10</div><div class="who">Aankomst Puerto Maldonado</div></div>
+            <p class="tx muted">Online inchecken hoeft niet: instapkaarten komen 48–24 uur van tevoren via WhatsApp.</p>
+          </div>
+
+          <div class="card stop">
+            <div class="tag">Bij aankomst</div>
+            <p class="tx" style="margin-top:10px">Finca Sachavacayoc staat klaar. We rijden eerst naar hun kantoor, waar bagage die we de komende dagen niet nodig hebben veilig blijft. Zij hebben <b>duffelbags</b> om alleen het noodzakelijke mee te nemen de jungle in.</p>
+          </div>
+
+          <div class="warn">
+            <span class="k y">Tip</span>
+            <span><b>Regenponcho</b> in je handbagage houden.</span>
+          </div>
+
+          <div class="eve">
+            <div class="t">±2<small>uur varen</small></div>
+            <div class="bd">
+              <div><div class="lbl" style="margin-bottom:6px">Over de Tambopata-rivier</div><h2>Boottocht <span class="y">de jungle in.</span></h2></div>
+              <p class="tx">De lodge ligt aan een meanderend stuk, midden in het regenwoud. Lunch wordt op de boot geserveerd: daar begint het programma.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div><div class="tag">3 nachten</div><h3 style="font-size:24px;margin-top:10px">Finca Sachavacayoc</h3></div>
+            <div class="chips">
+              <span class="chip">Bedden met klamboes</span>
+              <span class="chip">Kluis</span>
+              <span class="chip">Elektriciteit</span>
+              <span class="chip">Wifi</span>
+              <span class="chip">Gefilterd drinkwater</span>
+            </div>
+            <p class="tx muted">Laarzen zijn er tot maat 46, vooral voor het regenseizoen (december–maart, niet onze maanden).</p>
+          </div>
+
+          <div class="two">
+            <div class="card">
+              <div class="tag v">Programma</div>
+              <p class="tx">Excursies in het regenwoud. Volgorde kan wisselen door het weer. Toegang tot het Tambopata-reservaat en alle maaltijden inbegrepen.</p>
+              <div class="fl">fincasachavacayoc.com</div>
+            </div>
+            <div class="card">
+              <div class="tag">Praktisch</div>
+              <ul class="menu">
+                <li><span>Herbruikbare waterfles mee</span></li>
+                <li><span>Water bijvullen in de lodge</span></li>
+                <li><span>Pin/creditcard werkt</span></li>
+                <li><span>Voor de zekerheid wat cash erbij</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="end">
+            <div class="sleep">
+              <div class="k">Slapen</div>
+              <h4>Finca Sachavacayoc</h4>
+              <div class="chips">
+                <span class="chip y"><b>3×</b>tweepersoonsbungalow</span>
+                <span class="chip y">eigen badkamer + warme douche</span>
+              </div>
+              <p>Delen, maar met z'n tweeën.</p>
+            </div>
+          </div>
+        </div></div>
+      </article>
+
+      <!-- DAG 8 -->
+      <article class="day reveal" data-idx="7">
+        <div class="wm">8</div>
+        <div class="row">
+          <div class="rowTxt">
+            <div class="eb">DAG 8 · DO 5 NOV · TAMBOPATA</div>
+            <div class="ti">Volle dag jungle</div>
+          </div>
+          <div class="caret">⌄</div>
+        </div>
+        <div class="expanded"><div class="flyer">
+          <div class="hero">
+            <div class="eye">◆ Dag 8 · Donderdag 5 november</div>
+            <h1>Volle dag<br><span class="y">jungle.</span></h1>
+            <p class="lede">Tweede dag diep in het regenwoud.</p>
+          </div>
+
+          <p class="tx">Het programma bestaat uit excursies vanuit de lodge. De precieze invulling en volgorde hangen af van het weer en de lokale planning.</p>
+
+          <div>
+            <span class="lbl">Reken op</span>
+            <div class="two">
+              <div class="card stop"><div class="tag">01</div><h3>Boottochten</h3></div>
+              <div class="card stop"><div class="tag v">02</div><h3>Wandelingen</h3></div>
+              <div class="card stop"><div class="tag v">03</div><h3>Macaw clay licks</h3><p class="tx">Bij zonsopkomst.</p></div>
+              <div class="card stop"><div class="tag">04</div><h3>Misschien river otters</h3></div>
+            </div>
+          </div>
+
+          <div class="warn">
+            <span class="k y">Inbegrepen</span>
+            <span>Alle maaltijden en toegang tot het reservaat.</span>
+          </div>
+
+          <div class="end">
+            <div class="sleep">
+              <div class="k">Slapen</div>
+              <h4>Finca Sachavacayoc</h4>
+              <p>Zelfde bungalow als gisteren.</p>
+            </div>
+          </div>
+        </div></div>
+      </article>
+
+      <!-- DAG 9 -->
+      <article class="day reveal" data-idx="8">
+        <div class="wm">9</div>
+        <div class="row">
+          <div class="rowTxt">
+            <div class="eb">DAG 9 · VR 6 NOV · HUISWAARTS</div>
+            <div class="ti">Terug naar Lima en huiswaarts</div>
+          </div>
+          <div class="caret">⌄</div>
+        </div>
+        <div class="expanded"><div class="flyer">
+          <div class="hero">
+            <div class="eye">◆ Dag 9 · Vrijdag 6 november</div>
+            <h1>Terug naar Lima<br><span class="y">en huiswaarts.</span></h1>
+          </div>
+
+          <div class="card">
+            <div class="r2"><div class="t s">Ochtend</div><div><div class="who">Boot terug naar Puerto Maldonado</div><p class="tx">Even stop bij het kantoor van Finca Sachavacayoc voor de bagage uit opslag. Daarna naar de luchthaven.</p></div></div>
+            <div class="r2"><div class="t">12.45</div><div><div class="who">Vlucht naar Lima</div><div class="fl">LATAM LA 2261 · light · code DWITBU</div></div></div>
+            <div class="r2"><div class="t">14.20</div><div class="who">Aankomst Lima</div></div>
+          </div>
+
+          <div class="warn">
+            <span class="k y">Inchecken</span>
+            <span>Online kan vanaf 48 uur vooraf. Wel langs de incheckbalie voor ruimbagage.</span>
+          </div>
+
+          <div>
+            <span class="lbl">Vanaf Lima splitsen we</span>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="card">
+                <div class="r2"><div class="t">20.10</div><div><div class="who">Paul, Paultje en Dick</div><div class="fl">KLM KL 744 → Amsterdam</div><p class="tx">Wachten op het vliegveld op de terugvlucht.</p></div></div>
+              </div>
+              <div class="card">
+                <div class="r2"><div class="t">21.05</div><div><div class="who">Bernard</div><div class="fl">Iberia IB 124 → Madrid</div><p class="tx">Wacht op zijn vlucht.</p></div></div>
+              </div>
+              <div class="card">
+                <div class="r2"><div class="t s">Za 7 nov</div><div><div class="who">Hugo en David</div><p class="tx">J&amp;R brengt ze naar Hugo's Mansion in Miraflores. David vliegt zaterdag 7 november terug (<b>Avianca AV 102</b> naar Bogotá) en gaat zelf naar het vliegveld: geen transfer geregeld.</p></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="end">
+            <div class="sleep">
+              <div class="k">Slapen</div>
+              <div class="alt">
+                <h4>Onderweg in de lucht</h4>
+                <p>Paul, Paultje, Dick en Bernard</p>
+              </div>
+              <div class="alt">
+                <h4>Hugo's Mansion, Miraflores</h4>
+                <p>Hugo en David</p>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      </article>
+
     </div>
   </main>
 
 <script>
-const DAYS = [
-  {
-    n: 1, ord: 'ONE', when: 'THU 29 OCT', place: 'LIMA',
-    title: 'Arrival — Lima',
-    paras: [
-      "We land in two groups: David around 16:50 via Colombia, Dick, Paultje and Paul from Amsterdam around 18:10. Private transfers take both groups into the city and to Hugo's mansion.",
-      "First night is just settling in and getting some sleep. The trip doesn't really start yet, but it's close."
-    ],
-    temp: '18–24°',
-    tags: [{t:'HUMID',c:'rose'},{t:'STRONG SUN',c:'amber'},{t:'AM FOG',c:'violet'}],
-    transport: 'Private transfer',
-    outfit: 'Comfy travel outfit'
-  },
-  {
-    n: 2, ord: 'TWO', when: 'FRI 30 OCT', place: 'LIMA',
-    title: 'Around Lima',
-    paras: [
-      "We start with a slow morning, then take a city tour: ancient pyramids, colonial squares, modern neighbourhoods, coast.",
-      "In the evening our first proper Peruvian dinner."
-    ],
-    temp: '18–24°',
-    tags: [{t:'HUMID',c:'rose'},{t:'MILD',c:'amber'},{t:'CLEAR',c:'amber'}],
-    transport: 'Private tour + on foot',
-    outfit: 'Light layers, SPF + shades'
-  },
-  {
-    n: 3, ord: 'THREE', when: 'SAT 31 OCT', place: 'LIMA',
-    title: "Lima's finest",
-    paras: [
-      "Bernard arrives around 06:05 and rests. We have another slow morning and around lunch we all learn to make ceviche and pisco sours in a real kitchen — hands-on, a bit messy, probably a bit drunk.",
-      "Afternoon holds few plans. By evening we're all together for one of the city's finest dining."
-    ],
-    temp: '18–24°',
-    tags: [{t:'CLEAR',c:'amber'},{t:'STRONG SUN',c:'amber'},{t:'COOL PM',c:'violet'}],
-    transport: 'On foot + taxi',
-    outfit: 'Light layers, SPF'
-  },
-  {
-    n: 4, ord: 'FOUR', when: 'SUN 1 NOV', place: 'SACRED VALLEY',
-    title: 'Fly to Cusco & Pisac',
-    paras: [
-      "Possibly a little tired. 11:35 flight to Cusco, landing 13:00. The air is noticeably cooler and thinner as soon as we step out. From there we drive through the mountains to Pisac — markets, cafés, Inca ruins on the hillside.",
-      "Evening in the Sacred Valley. Higher up, slower pace."
-    ],
-    temp: '10–20°',
-    tags: [{t:'COLD PM',c:'violet'},{t:'STRONG UV',c:'amber'},{t:'ALTITUDE',c:'violet'}],
-    transport: 'Flight + mountain transfer',
-    outfit: 'Fleece, sunscreen'
-  },
-  {
-    n: 5, ord: 'FIVE', when: 'MON 2 NOV', place: 'SACRED VALLEY',
-    title: 'Zipline & stars',
-    paras: [
-      "Free morning to acclimatise. In the afternoon we zipline across the valley — proper adrenaline and views for days.",
-      "Jacuzzi at sunset, dinner under the stars, quiet in the mountains. Trust us. This is going to be special."
-    ],
-    temp: '10–20°',
-    tags: [{t:'SUNNY AM',c:'amber'},{t:'COLD PM',c:'violet'},{t:'STRONG UV',c:'amber'}],
-    transport: 'Local transfer',
-    outfit: 'Layers, wind jacket, hiking boots'
-  },
-  {
-    n: 6, ord: 'SIX', when: 'TUE 3 NOV', place: 'SACRED VALLEY → CUSCO',
-    title: 'Into Cusco',
-    paras: [
-      "Relaxed morning in the mountains. 11:00 transfer to Cusco, arriving 13:00. Afternoon is open — wander the old city, sit in a plaza, check out San Blas."
-    ],
-    temp: '10–20°',
-    tags: [{t:'SUN + CLOUD',c:'amber'},{t:'COLD PM',c:'violet'},{t:'ALTITUDE',c:'violet'}],
-    transport: 'Mountain transfer',
-    outfit: 'Fleece, comfy shoes'
-  },
-  {
-    n: 7, ord: 'SEVEN', when: 'WED 4 NOV', place: 'TAMBOPATA',
-    title: 'Into the Amazon',
-    paras: [
-      "After breakfast, 09:40 flight to Puerto Maldonado, landing 10:45. Then road and river from 11:00 to 13:00, deeper into Tambopata. Warm, humid, sticky.",
-      "First night in the Amazon — completely different from where we were 24 hours ago."
-    ],
-    temp: '24–32°',
-    tags: [{t:'HOT',c:'rose'},{t:'VERY HUMID',c:'rose'},{t:'BUGS',c:'violet'}],
-    transport: 'Flight + road + river boat',
-    outfit: 'Light breathable, repellent, long sleeves at dusk'
-  },
-  {
-    n: 8, ord: 'EIGHT', when: 'THU 5 NOV', place: 'TAMBOPATA',
-    title: 'Deep jungle',
-    paras: [
-      "Full day in the jungle. Macaw clay lick at dawn, boat ride on quiet water with river otters, walking forest trails. Plenty we've never seen before.",
-      "Probably one of the days we'll talk about for a long time."
-    ],
-    temp: '24–32°',
-    tags: [{t:'HOT',c:'rose'},{t:'VERY HUMID',c:'rose'},{t:'PM SHOWERS',c:'violet'}],
-    transport: 'River boat + forest trails',
-    outfit: 'Breathable, water shoes, repellent'
-  },
-  {
-    n: 9, ord: 'NINE', when: 'FRI 6 NOV', place: 'TAMBOPATA → LIMA → HOME',
-    title: 'The long way home',
-    paras: [
-      "One last morning in the rainforest. 12:45 flight to Lima, landing 14:20. Onward connections around 20:10–21:05 for most of us. David flies out the next morning."
-    ],
-    temp: '24 → 18°',
-    tags: [{t:'HUMID',c:'rose'},{t:'TRAVEL DAY',c:'violet'}],
-    transport: 'River + flights',
-    outfit: 'Comfy travel layers'
-  },
-  {
-    n: 10, ord: 'TEN', when: 'SAT 7 NOV', place: 'HOME',
-    title: 'Home',
-    paras: [
-      "Home. Most land in NL around 14:00, Curaçao around 18:00. What a trip. Where next?"
-    ],
-    temp: null,
-    tags: [{t:'TRAVEL DAY',c:'violet'}],
-    transport: 'Flights home',
-    outfit: "Whatever's comfiest"
-  }
-];
-
-const daysEl = document.getElementById('days');
-DAYS.forEach((d, idx) => {
-  const el = document.createElement('article');
-  el.className = 'day reveal' + (idx === 0 ? ' open' : '');
-  el.setAttribute('data-idx', String(idx));
-  const tagsHtml = d.tags.map(t => `<span class="tag ${t.c}">${t.t}</span>`).join('');
-  const tempHtml = d.temp ? `<span class="temp">${d.temp}</span>` : '';
-  el.innerHTML = `
-    <div class="wm">${d.n}</div>
-    <div class="row">
-      <div class="rowTxt">
-        <div class="eb">DAY ${d.ord} · ${d.when} · ${d.place}</div>
-        <div class="ti">${d.title}</div>
-      </div>
-      <div class="caret">⌄</div>
-    </div>
-    <div class="expanded">
-      <div class="upper">
-        <div class="eb">DAY ${d.ord} · ${d.when} · ${d.place}</div>
-        <div class="ti">${d.title}</div>
-        ${d.paras.map(p => `<p>${p}</p>`).join('')}
-        <div class="weather">${tempHtml}${tagsHtml}</div>
-      </div>
-      <div class="strip">
-        <div class="cell"><div class="lbl">TRANSPORT</div><div class="val">${d.transport}</div></div>
-        <div class="cell"><div class="lbl">OUTFIT</div><div class="val">${d.outfit}</div></div>
-      </div>
-    </div>
-  `;
-  daysEl.appendChild(el);
-});
-
-// Accordion behavior
-daysEl.addEventListener('click', e => {
-  const day = e.target.closest('.day');
-  if (!day || day.classList.contains('open')) return;
-  daysEl.querySelectorAll('.day.open').forEach(d => d.classList.remove('open'));
-  day.classList.add('open');
-});
-
-// Reveal on scroll
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-}, { threshold: 0.16 });
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  // accordion
+  const daysEl = document.querySelector('.days');
+  daysEl.addEventListener('click', e => {
+    const day = e.target.closest('.day');
+    if (!day || day.classList.contains('open')) return;
+    daysEl.querySelectorAll('.day.open').forEach(d => d.classList.remove('open'));
+    day.classList.add('open');
+    // Scroll opened card into comfortable view
+    setTimeout(() => day.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  });
+  // reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.16 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 </script>
 <script>/* nav-init */
   (function(){
